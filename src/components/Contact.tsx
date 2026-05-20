@@ -1,59 +1,161 @@
+"use client"
+
+import { useState } from "react"
+import { motion } from "framer-motion"
+import { supabase } from "@/lib/supabase"
+
 export default function Contact() {
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    company: "",
+    budget: "",
+    message: "",
+  })
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault()
+
+    setLoading(true)
+
+    const { error } = await supabase.from("leads").insert([
+      {
+        name: formData.name,
+        email: formData.email,
+        company: formData.company,
+        budget: formData.budget,
+        message: formData.message,
+      },
+    ])
+
+    setLoading(false)
+
+    if (!error) {
+      setSuccess(true)
+
+      setFormData({
+        name: "",
+        email: "",
+        company: "",
+        budget: "",
+        message: "",
+      })
+    } else {
+      alert("Something went wrong")
+      console.log(error)
+    }
+  }
+
   return (
-    <section className="py-24 px-6 bg-slate-900 text-white">
-      <div className="max-w-5xl mx-auto text-center">
+    <section
+      id="contact"
+      className="px-6 py-24 bg-white"
+    >
+      <div className="max-w-4xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: true }}
+          className="text-center mb-14"
+        >
+          <h2 className="text-5xl font-bold text-slate-900 mb-6">
+            Let’s Scale Your Revenue
+          </h2>
 
-        <span className="text-cyan-400 font-semibold uppercase tracking-wider">
-          Contact
-        </span>
+          <p className="text-slate-600 text-xl">
+            Connect with Ashvisor to build profitable
+            performance marketing systems.
+          </p>
+        </motion.div>
 
-        <h2 className="text-5xl font-bold mt-6">
-          Let's Scale Your Growth
-        </h2>
+        <motion.form
+          onSubmit={handleSubmit}
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: true }}
+          className="bg-slate-50 rounded-3xl p-10 shadow-xl space-y-6"
+        >
+          <div className="grid md:grid-cols-2 gap-6">
+            <input
+              type="text"
+              name="name"
+              placeholder="Your Name"
+              required
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full rounded-2xl border border-slate-200 px-5 py-4 outline-none focus:border-cyan-500"
+            />
 
-        <p className="text-slate-300 text-xl mt-6 max-w-3xl mx-auto">
-          Ready to accelerate your marketing performance with AI-powered
-          advertising and analytics? Let’s talk.
-        </p>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full rounded-2xl border border-slate-200 px-5 py-4 outline-none focus:border-cyan-500"
+            />
+          </div>
 
-        <form className="mt-16 grid md:grid-cols-2 gap-6 text-left">
+          <div className="grid md:grid-cols-2 gap-6">
+            <input
+              type="text"
+              name="company"
+              placeholder="Company Name"
+              value={formData.company}
+              onChange={handleChange}
+              className="w-full rounded-2xl border border-slate-200 px-5 py-4 outline-none focus:border-cyan-500"
+            />
 
-          <input
-            type="text"
-            placeholder="Your Name"
-            className="bg-slate-800 border border-slate-700 rounded-2xl px-6 py-4 outline-none focus:border-cyan-500"
-          />
-
-          <input
-            type="email"
-            placeholder="Email Address"
-            className="bg-slate-800 border border-slate-700 rounded-2xl px-6 py-4 outline-none focus:border-cyan-500"
-          />
-
-          <input
-            type="text"
-            placeholder="Company Name"
-            className="bg-slate-800 border border-slate-700 rounded-2xl px-6 py-4 outline-none focus:border-cyan-500 md:col-span-2"
-          />
+            <input
+              type="text"
+              name="budget"
+              placeholder="Monthly Budget"
+              value={formData.budget}
+              onChange={handleChange}
+              className="w-full rounded-2xl border border-slate-200 px-5 py-4 outline-none focus:border-cyan-500"
+            />
+          </div>
 
           <textarea
-            rows={5}
+            name="message"
             placeholder="Tell us about your goals..."
-            className="bg-slate-800 border border-slate-700 rounded-2xl px-6 py-4 outline-none focus:border-cyan-500 md:col-span-2"
+            rows={6}
+            value={formData.message}
+            onChange={handleChange}
+            className="w-full rounded-2xl border border-slate-200 px-5 py-4 outline-none focus:border-cyan-500"
           />
 
           <button
-            className="
-              md:col-span-2
-              bg-gradient-to-r from-cyan-500 to-purple-600
-              py-4 rounded-2xl font-semibold text-lg
-              hover:scale-[1.02] transition duration-300
-            "
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-2xl bg-slate-900 text-white py-4 text-lg font-semibold hover:bg-cyan-600 transition"
           >
-            Send Message
+            {loading ? "Submitting..." : "Submit Inquiry"}
           </button>
 
-        </form>
+          {success && (
+            <p className="text-green-600 text-center font-semibold">
+              Inquiry submitted successfully 🚀
+            </p>
+          )}
+        </motion.form>
       </div>
     </section>
   )
