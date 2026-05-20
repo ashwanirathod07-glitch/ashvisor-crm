@@ -11,3 +11,7 @@ export default function RootLayout({
     </html>
   )
 }
+export const metadata = {
+  title: "Ashvisor - AI Marketing Platform",
+  description: "AI-powered adtech and performance marketing solutions.",
+};
