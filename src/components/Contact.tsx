@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { supabase } from "@/lib/supabase"
 
 export default function Contact() {
   const [loading, setLoading] = useState(false)
@@ -32,29 +31,34 @@ export default function Contact() {
 
     setLoading(true)
 
-    const { error } = await supabase.from("leads").insert([
-      {
-        name: formData.name,
-        email: formData.email,
-        company: formData.company,
-        budget: formData.budget,
-        message: formData.message,
-      },
-    ])
-
-    setLoading(false)
-
-    if (!error) {
-      setSuccess(true)
-
-      setFormData({
-        name: "",
-        email: "",
-        company: "",
-        budget: "",
-        message: "",
+    try {
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       })
-    } else {
+
+      const result = await response.json()
+
+      setLoading(false)
+
+      if (result.success) {
+        setSuccess(true)
+
+        setFormData({
+          name: "",
+          email: "",
+          company: "",
+          budget: "",
+          message: "",
+        })
+      } else {
+        alert(result.error || "Something went wrong")
+      }
+    } catch (error) {
+      setLoading(false)
       alert("Something went wrong")
       console.log(error)
     }
