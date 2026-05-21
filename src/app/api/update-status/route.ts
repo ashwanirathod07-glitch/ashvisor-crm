@@ -10,26 +10,12 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
 
-    const {
-      name,
-      email,
-      company,
-      budget,
-      message,
-    } = body
+    const { id, status } = body
 
     const { data, error } = await supabase
       .from("leads")
-      .insert([
-        {
-          name,
-          email,
-          company,
-          budget,
-          message,
-          status: "New",
-        },
-      ])
+      .update({ status })
+      .eq("id", id)
       .select()
 
     if (error) {
