@@ -10,16 +10,36 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
 
-    const { id, status } = body
+    const {
+      name,
+      email,
+      company,
+      budget,
+      message,
+    } = body
 
     const { data, error } = await supabase
       .from("leads")
-      .update({ status })
-      .eq("id", id)
+      .insert([
+        {
+          name,
+          email,
+          company,
+          budget,
+          message,
+          status: "New",
+        },
+      ])
+      .select()
 
     if (error) {
+      console.log("SUPABASE ERROR:", error)
+
       return NextResponse.json(
-        { error: error.message },
+        {
+          success: false,
+          error: error.message,
+        },
         { status: 500 }
       )
     }
@@ -29,8 +49,13 @@ export async function POST(req: Request) {
       data,
     })
   } catch (error) {
+    console.log("SERVER ERROR:", error)
+
     return NextResponse.json(
-      { error: "Something went wrong" },
+      {
+        success: false,
+        error: "Something went wrong",
+      },
       { status: 500 }
     )
   }
